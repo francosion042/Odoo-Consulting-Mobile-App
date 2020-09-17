@@ -1,5 +1,4 @@
 import Odoo from "react-native-odoo-promise-based";
-// import {HOST, DB, PORT, USERNAME, PASSWORD} from 'react-native-dotenv'
 
 const odoo = new Odoo({
   host: "46.101.249.182",
@@ -9,14 +8,5 @@ const odoo = new Odoo({
   password: "simpsuns#",
   protocol: "http",
 });
-
-odoo
-  .connect()
-  .then((response) => {
-    console.log(response);
-  })
-  .catch((e) => {
-    console.log(e);
-  });
 
 export default odoo;
