@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Odoo-Consulting-Mobile-App",
+    "name": "Odoo Consulting Mobile",
     "slug": "Odoo-Consulting-Mobile-App",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,9 +13,7 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
