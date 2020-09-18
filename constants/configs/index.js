@@ -1,3 +1,3 @@
-import odoo from "./odoo";
+import OdooConfig from "./odoo";
 
-export { odoo };
+export { OdooConfig };

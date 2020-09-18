@@ -1,12 +1,21 @@
 import Odoo from "react-native-odoo-promise-based";
 
-const odoo = new Odoo({
-  host: "46.101.249.182",
-  port: 8069,
-  database: "test_db",
-  username: "admin",
-  password: "simpsuns#",
-  protocol: "http",
-});
+class OdooConfig {
+  constructor(email, password) {
+    this.email = email;
+    this.password = password;
+    this.odoo = new Odoo({
+      host: "46.101.249.182",
+      port: 8069,
+      database: "test_db",
+      username: this.email,
+      password: this.password,
+      protocol: "http",
+    });
+  }
+}
 
-export default odoo;
+export default OdooConfig;
+
+//email : admin
+// password : simpsuns#

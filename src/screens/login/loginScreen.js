@@ -1,14 +1,27 @@
-import React from "react";
-import { StyleSheet, Text, View, Button, TextInput } from "react-native";
-import { odoo } from "../../../constants/configs";
+import React, { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { Button, Input } from "react-native-elements";
+import { OdooConfig } from "../../../constants/configs";
 
 export default function Login({ navigation }) {
-  const signIn = () => {
-    odoo
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const signIn = async () => {
+    const Odoo = new OdooConfig(email, password);
+
+    await Odoo.odoo
       .connect()
       .then((response) => {
         console.log(response);
-        return true;
+        if (response.success) {
+          return navigation.navigate("Home");
+        } else if (response.error.data.arguments[0] === "Access denied") {
+          setError("Incorrect Email or Password");
+        } else {
+          return null;
+        }
       })
       .catch((e) => {
         console.log(e);
@@ -18,12 +31,26 @@ export default function Login({ navigation }) {
   return (
     <View>
       <View>
-        <Text>Username</Text>
-        <TextInput />
-        <Text>Password</Text>
-        <TextInput />
+        <Text>{error}</Text>
+        <Input
+          placeholder="Email"
+          placeholderColor="#c4c3cb"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        <Input
+          placeholder="Password"
+          placeholderColor="#c4c3cb"
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+          secureTextEntry={true}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
       </View>
-      <Button onPress={() => navigation.navigate("Home")} title="Sign In" />
+      <Button onPress={() => signIn()} title="Sign In" />
     </View>
   );
 }
