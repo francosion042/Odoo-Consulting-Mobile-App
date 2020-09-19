@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
 
-const ProjectsStyles = StyleSheet.create({});
+const styles = StyleSheet.create({});
 
-export default ProjectsStyles;
+export default styles;

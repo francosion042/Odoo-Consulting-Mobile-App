@@ -7,3 +7,5 @@ export * from "./home";
 export * from "./notifications";
 
 export * from "./login";
+
+export * from "./profile";

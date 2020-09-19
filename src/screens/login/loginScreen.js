@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 import { Input } from "react-native-elements";
@@ -36,6 +37,9 @@ export default function Login({ navigation }) {
         } else if (response.error.data.arguments[0] === "Access denied") {
           setIsLoading(false);
           setError("Incorrect Email or Password");
+        } else if (!response.success) {
+          setIsLoading(false);
+          return null;
         } else {
           setIsLoading(false);
           return null;
