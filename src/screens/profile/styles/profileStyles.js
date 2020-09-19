@@ -1,0 +1,85 @@
+import { StyleSheet } from "react-native";
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  rect: {
+    width: 187,
+    height: 200,
+    backgroundColor: "#E6E6E6",
+    borderRadius: 10,
+    marginTop: 20,
+    alignSelf: "center",
+  },
+  icon2: {
+    color: "#7c7bad",
+    fontSize: 170,
+    height: 184,
+    width: 170,
+    marginTop: 15,
+    marginLeft: 9,
+  },
+  rect2: {
+    width: 327,
+    height: 249,
+    backgroundColor: "rgba(230,230,230,0.16)",
+    // marginTop: 15,
+    marginLeft: 17,
+  },
+  profileName: {
+    // fontFamily: "calibri-bold",
+    color: "#121212",
+    height: 51,
+    width: 243,
+    textAlign: "center",
+    fontSize: 30,
+    marginTop: 21,
+    marginLeft: 42,
+  },
+  rect3: {
+    width: 325,
+    height: 43,
+    backgroundColor: "#E6E6E6",
+    flexDirection: "row",
+    // marginTop: 11,
+    marginLeft: 1,
+  },
+  icon: {
+    color: "#7c7bad",
+    fontSize: 30,
+    height: 34,
+    width: 30,
+  },
+  emailGmailCom: {
+    // fontFamily: "roboto-regular",
+    color: "#121212",
+    height: 28,
+    width: 268,
+    marginLeft: 13,
+    marginTop: 6,
+  },
+  iconRow: {
+    height: 34,
+    flexDirection: "row",
+    flex: 1,
+    marginRight: 8,
+    marginLeft: 6,
+    marginTop: 1,
+  },
+  button: {
+    width: 327,
+    height: 37,
+    backgroundColor: "#7c7bad",
+    marginTop: 17,
+  },
+  logOut: {
+    // fontFamily: "roboto-700",
+    color: "#121212",
+    fontSize: 20,
+    textAlign: "center",
+    marginTop: 8,
+    //marginLeft: 122,
+  },
+});
+export default styles;

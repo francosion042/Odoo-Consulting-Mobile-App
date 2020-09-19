@@ -4,10 +4,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Login } from "./src/screens";
 import { HomeTabNavigator } from "./src/navigation";
+import { AuthContextProvider, AuthContext } from "./src/contexts";
 
 const Stack = createStackNavigator();
 
-export default function App() {
+function App() {
   const getHeaderTitle = (route) => {
     const routeName = route.state
       ? route.state.routes[route.state.index].name
@@ -63,3 +64,11 @@ export default function App() {
     </NavigationContainer>
   );
 }
+
+export default (props) => {
+  return (
+    <AuthContextProvider>
+      <App navigation={props.navigation} />
+    </AuthContextProvider>
+  );
+};

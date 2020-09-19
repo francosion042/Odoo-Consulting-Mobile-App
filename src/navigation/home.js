@@ -1,10 +1,9 @@
 import React from "react";
-import { Button } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Home, Notifiactions, Profiles } from "../screens";
-import { ProjectsTabNavigator } from "./index";
+import ProjectsTabNavigator from "./projects";
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
