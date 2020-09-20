@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import styles from "./styles/profileStyles";
-import { AuthContextProvider, AuthContext } from "../../contexts";
+import { AuthContext } from "../../contexts";
 
 function Profiles(props) {
   //   //access the authContext and call the createUser function

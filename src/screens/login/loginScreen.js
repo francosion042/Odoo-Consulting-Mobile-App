@@ -24,7 +24,7 @@ export function Login({ navigation }) {
       .then((response) => {
         console.log(response.success);
         if (response.success) {
-          createUser(response.data);
+          createUser({ ...response.data, email, password });
           setIsLoading(false);
           return navigation.navigate("Home");
         } else if (response.error.data.arguments[0] === "Access denied") {

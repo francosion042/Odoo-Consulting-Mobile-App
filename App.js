@@ -4,7 +4,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Login } from "./src/screens";
 import { HomeTabNavigator } from "./src/navigation";
-import { AuthContextProvider, AuthContext } from "./src/contexts";
+import {
+  AuthContextProvider,
+  ProjectsContextProvider,
+  TasksContextProvider,
+} from "./src/contexts";
 
 const Stack = createStackNavigator();
 
@@ -68,7 +72,11 @@ function App() {
 export default (props) => {
   return (
     <AuthContextProvider>
-      <App navigation={props.navigation} />
+      <ProjectsContextProvider>
+        <TasksContextProvider>
+          <App navigation={props.navigation} />
+        </TasksContextProvider>
+      </ProjectsContextProvider>
     </AuthContextProvider>
   );
 };

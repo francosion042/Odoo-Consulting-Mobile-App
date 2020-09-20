@@ -27,6 +27,17 @@ const HomeStackNavigator = ({ navigation, route }) => {
       tabBarVisible: route.state.index > 0 ? false : true,
     });
   }
+
+  const shouldHeaderBeShown = (route) => {
+    const routeName = route.state
+      ? route.state.routes[route.state.index].name
+      : "Projects";
+
+    switch (routeName) {
+      case "Projects":
+        return false;
+    }
+  };
   return (
     <HomeStack.Navigator>
       <HomeStack.Screen
@@ -55,6 +66,7 @@ const HomeStackNavigator = ({ navigation, route }) => {
         component={ProjectsTabNavigator}
         options={({ route }) => ({
           title: getHeaderTitle(route),
+          headerShown: shouldHeaderBeShown(route),
           headerStyle: {
             backgroundColor: "#7c7bad",
           },
