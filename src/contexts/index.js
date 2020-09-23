@@ -2,6 +2,10 @@ import { AuthContextProvider, AuthContext } from "./authContext";
 import { ProjectsContextProvider, ProjectsContext } from "./projectsContext";
 import { TasksContextProvider, TasksContext } from "./tasksContext";
 import { DiscussContextProvider, DiscussContext } from "./discussContext";
+import {
+  NotificationsContextProvider,
+  NotificationsContext,
+} from "./notificationsContext";
 
 export {
   AuthContextProvider,
@@ -12,4 +16,6 @@ export {
   TasksContext,
   DiscussContextProvider,
   DiscussContext,
+  NotificationsContextProvider,
+  NotificationsContext,
 };

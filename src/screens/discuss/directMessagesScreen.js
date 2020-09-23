@@ -72,6 +72,7 @@ export default function DirectMessages({ route, navigation }) {
           Odoo.odoo
             .create("mail.message", params)
             .then((response) => {
+              // immediately add the newly created message to the context data, this will make it appear on the chat box immediately
               addMessages([
                 ...messages,
                 {
@@ -126,17 +127,13 @@ export default function DirectMessages({ route, navigation }) {
                 </ListItem.Subtitle>
               </ListItem.Title>
 
-              <ListItem.Content>
-                <ListItem.Subtitle style={styles.subject}>
-                  Subject: {msg.subject}
-                </ListItem.Subtitle>
-              </ListItem.Content>
+              <ListItem.Content></ListItem.Content>
               <ListItem.Content>
                 <ListItem.Subtitle>
                   Body:{" "}
                   {extractHTML(msg.body)
                     ? extractHTML(msg.body)
-                    : "(images, emojis and stickers cannot be shown)"}
+                    : "(images are not supported)"}
                 </ListItem.Subtitle>
               </ListItem.Content>
             </ListItem.Content>
@@ -148,6 +145,7 @@ export default function DirectMessages({ route, navigation }) {
         <TextInput
           value={typing}
           style={styles.input}
+          multiline={true}
           underlineColorAndroid="transparent"
           placeholder="Type something here"
           onChangeText={(text) => setTyping(text)}

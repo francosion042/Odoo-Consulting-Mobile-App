@@ -1,5 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
-import { TouchableOpacity, View, ScrollView } from "react-native";
+import {
+  TouchableOpacity,
+  View,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import { ListItem } from "react-native-elements";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { OdooConfig } from "../../../constants/configs";
@@ -8,6 +13,7 @@ import { LoadingScreen } from "../../commons";
 
 export default function Projects({ navigation }) {
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { user } = useContext(AuthContext);
   const { addProjects, projects } = useContext(ProjectsContext);
@@ -28,20 +34,22 @@ export default function Projects({ navigation }) {
             .search_read("project.project", params)
             .then((response) => {
               addProjects(response.data);
+              setIsLoading(false);
+              setIsRefreshing(false);
             })
             .catch((e) => {
               console.log(e);
             });
-          setIsLoading(false);
         } else {
           setIsLoading(false);
+          setIsRefreshing(false);
         }
       })
       .catch((e) => {
         console.log(e);
         setIsLoading(false);
       });
-  }, []);
+  }, [isRefreshing]);
 
   ///////////////////////////////////////////////////////////////////////
   if (isLoading) {
@@ -50,7 +58,13 @@ export default function Projects({ navigation }) {
 
   return (
     <View>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => setIsRefreshing(true)}
+          />
+        }>
         {projects.map((p, i) => (
           <TouchableOpacity
             key={i}

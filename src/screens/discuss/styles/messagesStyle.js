@@ -31,11 +31,37 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: "row",
     backgroundColor: "#eee",
+    height: 90,
+  },
+  footer2: {
+    flexDirection: "row",
+    backgroundColor: "#eee",
+    height: 90,
   },
   input: {
     paddingHorizontal: 20,
     fontSize: 15,
     flex: 1,
+  },
+  inpView: {
+    flexDirection: "column",
+    flex: 1,
+    borderRightWidth: 2,
+    borderRightColor: "#b9bcbe",
+    borderLeftWidth: 2,
+    borderLeftColor: "#b9bcbe",
+  },
+  input1: {
+    paddingHorizontal: 10,
+    fontSize: 15,
+    flex: 1,
+    borderBottomWidth: 1,
+    borderBottomColor: "#b9bcbe",
+  },
+  input2: {
+    paddingHorizontal: 10,
+    fontSize: 15,
+    flex: 2,
   },
   send: {
     alignSelf: "center",
@@ -43,8 +69,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     padding: 12,
-    borderLeftWidth: 1,
-    borderLeftColor: "#b9bcbe",
+  },
+  send2: {
+    alignSelf: "center",
+    color: "lightseagreen",
+    fontSize: 16,
+    fontWeight: "bold",
+    padding: 12,
+    marginVertical: 20,
   },
 });
 

@@ -9,6 +9,7 @@ import {
   ProjectsContextProvider,
   TasksContextProvider,
   DiscussContextProvider,
+  NotificationsContextProvider,
 } from "./src/contexts";
 
 const Stack = createStackNavigator();
@@ -76,7 +77,9 @@ export default (props) => {
       <ProjectsContextProvider>
         <TasksContextProvider>
           <DiscussContextProvider>
-            <App navigation={props.navigation} />
+            <NotificationsContextProvider>
+              <App navigation={props.navigation} />
+            </NotificationsContextProvider>
           </DiscussContextProvider>
         </TasksContextProvider>
       </ProjectsContextProvider>

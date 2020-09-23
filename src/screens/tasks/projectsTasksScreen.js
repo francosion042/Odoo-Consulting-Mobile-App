@@ -1,5 +1,11 @@
 import React, { useState, useContext, useEffect } from "react";
-import { TouchableOpacity, View, Text, ScrollView } from "react-native";
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import { ListItem } from "react-native-elements";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { TasksContext } from "../../contexts";
@@ -7,6 +13,7 @@ import { LoadingScreen } from "../../commons";
 
 export default function ProjectTasks({ route, navigation }) {
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [projectTasks, setProjectTasks] = useState([]);
 
   const { tasks } = useContext(TasksContext);
@@ -22,7 +29,8 @@ export default function ProjectTasks({ route, navigation }) {
     }
     setProjectTasks([...proTasks]);
     setIsLoading(false);
-  }, []);
+    setIsRefreshing(false);
+  }, [isRefreshing]);
 
   ///////////////////////////////////////////////////////////////////////
   if (isLoading) {
@@ -31,7 +39,13 @@ export default function ProjectTasks({ route, navigation }) {
 
   return (
     <View>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => setIsRefreshing(true)}
+          />
+        }>
         {projectTasks.map((t, i) => (
           <ListItem bottomDivider key={i}>
             <Ionicons name="ios-list-box" size={40} color="#7c7bad" />

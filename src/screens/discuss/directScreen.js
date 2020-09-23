@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import { TouchableOpacity, View, ScrollView } from "react-native";
+import {
+  TouchableOpacity,
+  View,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import { ListItem } from "react-native-elements";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { OdooConfig } from "../../../constants/configs";
@@ -8,7 +13,7 @@ import { LoadingScreen, ErrorScreen } from "../../commons";
 
 export default function Channels({ navigation }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [networkError, setNetworkError] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { user } = useContext(AuthContext);
   const { directChannels, addDirectChannels } = useContext(DiscussContext);
@@ -31,6 +36,7 @@ export default function Channels({ navigation }) {
             .then((response) => {
               addDirectChannels(response.data);
               setIsLoading(false);
+              setIsRefreshing(false);
             })
             .catch((e) => {
               console.log(e);
@@ -38,24 +44,27 @@ export default function Channels({ navigation }) {
           ///////////////////////////////////////////////////
         } else {
           setIsLoading(false);
-          setNetworkError(true);
+          setIsRefreshing(false);
         }
       })
       .catch((e) => {
         console.log(e);
-        setNetworkError(true);
         setIsLoading(false);
       });
-  }, []);
+  }, [isRefreshing]);
 
   if (isLoading) {
     return <LoadingScreen />;
-  } else if (networkError) {
-    <ErrorScreen />;
   }
   return (
     <View>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => setIsRefreshing(true)}
+          />
+        }>
         {directChannels.map((c, i) => (
           <TouchableOpacity
             key={i}

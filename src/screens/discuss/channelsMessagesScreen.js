@@ -20,7 +20,8 @@ export default function ChannelsMessages({ route, navigation }) {
   const scrollViewRef = useRef();
   const [isLoading, setIsLoading] = useState(true);
   const [msgs, setMsgs] = useState([]);
-  const [typing, setTyping] = useState("");
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
 
   const { channel_id, channel_name } = route.params;
   const { messages, addMessages } = useContext(DiscussContext);
@@ -37,9 +38,7 @@ export default function ChannelsMessages({ route, navigation }) {
     setIsLoading(false);
   }, [messages]);
   ///////////////////////////////////////////////////////////////////////
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+
   ////////////////////////////
   // the body of each message is a string of HTML element, so it needs to be etracted and decoded
   const extractHTML = (html) => {
@@ -49,7 +48,8 @@ export default function ChannelsMessages({ route, navigation }) {
   /////////////////////////////
 
   const createMessage = async () => {
-    setTyping("");
+    setSubject("");
+    setBody("");
     const Odoo = new OdooConfig(user.email, user.password);
 
     await Odoo.odoo
@@ -59,11 +59,11 @@ export default function ChannelsMessages({ route, navigation }) {
         if (response.success) {
           setIsLoading(false);
           //////////////////////////////////////////////
-          // get all messages and add them to  the discuss context. this will make it easier to navigate between chats
           const params = {
             model: "mail.channel",
             res_id: channel_id,
-            body: typing,
+            subject: subject,
+            body: body,
             channel_ids: [channel_id],
             author_id: user.partner_id,
             author_avatar: user.more_info[0].image_1920,
@@ -72,15 +72,16 @@ export default function ChannelsMessages({ route, navigation }) {
           Odoo.odoo
             .create("mail.message", params)
             .then((response) => {
+              // immediately add the newly created message to the context data, this will make it appear on the chat box immediately
               addMessages([
                 ...messages,
                 {
                   author_id: [user.partner_id, user.name],
                   author_avatar: user.more_info[0].image_1920,
-                  subject: "",
+                  subject: subject,
                   message_type: "comment",
                   channel_ids: [channel_id],
-                  body: typing,
+                  body: body,
                   date: "new",
                 },
               ]);
@@ -100,6 +101,10 @@ export default function ChannelsMessages({ route, navigation }) {
       });
   };
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -112,10 +117,14 @@ export default function ChannelsMessages({ route, navigation }) {
         }>
         {msgs.map((msg, i) => (
           <ListItem key={i} bottomDivider>
-            <Image
-              style={styles.avatar}
-              source={{ uri: `data:image/png;base64,${msg.author_avatar}` }}
-            />
+            {msg.author_avatar ? (
+              <Image
+                style={styles.avatar}
+                source={{ uri: `data:image/png;base64,${msg.author_avatar}` }}
+              />
+            ) : (
+              <Ionicons name="ios-person" size={40} color="#7c7bad" />
+            )}
             <ListItem.Content>
               <ListItem.Title style={styles.author}>
                 {msg.author_id[1]}
@@ -135,7 +144,7 @@ export default function ChannelsMessages({ route, navigation }) {
                   Body:{" "}
                   {extractHTML(msg.body)
                     ? extractHTML(msg.body)
-                    : "(images, emojis and stickers cannot be shown)"}
+                    : "(images are not supported)"}
                 </ListItem.Subtitle>
               </ListItem.Content>
             </ListItem.Content>
@@ -143,16 +152,27 @@ export default function ChannelsMessages({ route, navigation }) {
         ))}
       </ScrollView>
 
-      <View style={styles.footer}>
-        <TextInput
-          value={typing}
-          style={styles.input}
-          underlineColorAndroid="transparent"
-          placeholder="Type something here"
-          onChangeText={(text) => setTyping(text)}
-        />
+      <View style={styles.footer2}>
+        <View style={styles.inpView}>
+          <TextInput
+            value={subject}
+            style={styles.input1}
+            underlineColorAndroid="transparent"
+            placeholder="Type Subject here"
+            onChangeText={(text) => setSubject(text)}
+          />
+          <TextInput
+            value={body}
+            style={styles.input2}
+            multiline={true}
+            underlineColorAndroid="transparent"
+            placeholder="Type Body here"
+            onChangeText={(text) => setBody(text)}
+          />
+        </View>
+
         <TouchableOpacity onPress={() => createMessage()}>
-          <Text style={styles.send}>Send</Text>
+          <Text style={styles.send2}>Send</Text>
         </TouchableOpacity>
       </View>
     </View>
