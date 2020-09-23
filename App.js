@@ -8,6 +8,7 @@ import {
   AuthContextProvider,
   ProjectsContextProvider,
   TasksContextProvider,
+  DiscussContextProvider,
 } from "./src/contexts";
 
 const Stack = createStackNavigator();
@@ -74,7 +75,9 @@ export default (props) => {
     <AuthContextProvider>
       <ProjectsContextProvider>
         <TasksContextProvider>
-          <App navigation={props.navigation} />
+          <DiscussContextProvider>
+            <App navigation={props.navigation} />
+          </DiscussContextProvider>
         </TasksContextProvider>
       </ProjectsContextProvider>
     </AuthContextProvider>

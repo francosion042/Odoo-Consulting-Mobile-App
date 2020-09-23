@@ -6,7 +6,9 @@ export default function Home({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("Discuss")}>
           <View style={styles.rect5}></View>
           <Text style={styles.discuss}>Discuss</Text>
         </TouchableOpacity>

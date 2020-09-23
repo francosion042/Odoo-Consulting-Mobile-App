@@ -4,12 +4,13 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Home, Notifiactions, Profiles } from "../screens";
 import ProjectsTabNavigator from "./projects";
+import DiscussTabNavigator from "./discuss";
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 
 const HomeStackNavigator = ({ navigation, route }) => {
-  const getHeaderTitle = (route) => {
+  const getProjectHeaderTitle = (route) => {
     const routeName = route.state
       ? route.state.routes[route.state.index].name
       : "Projects";
@@ -22,13 +23,20 @@ const HomeStackNavigator = ({ navigation, route }) => {
     }
   };
 
-  if (route.state) {
-    navigation.setOptions({
-      tabBarVisible: route.state.index > 0 ? false : true,
-    });
-  }
+  const getDiscussHeaderTitle = (route) => {
+    const routeName = route.state
+      ? route.state.routes[route.state.index].name
+      : "Direct";
 
-  const shouldHeaderBeShown = (route) => {
+    switch (routeName) {
+      case "Direct":
+        return "Chats";
+      case "Channels":
+        return "Channels";
+    }
+  };
+
+  const shouldProjectHeaderBeShown = (route) => {
     const routeName = route.state
       ? route.state.routes[route.state.index].name
       : "Projects";
@@ -38,6 +46,26 @@ const HomeStackNavigator = ({ navigation, route }) => {
         return false;
     }
   };
+
+  const shouldDiscussHeaderBeShown = (route) => {
+    const routeName = route.state
+      ? route.state.routes[route.state.index].name
+      : "Discuss";
+
+    switch (routeName) {
+      case "Direct":
+        return false;
+
+      case "Channels":
+        return false;
+    }
+  };
+
+  if (route.state) {
+    navigation.setOptions({
+      tabBarVisible: route.state.index > 0 ? false : true,
+    });
+  }
   return (
     <HomeStack.Navigator>
       <HomeStack.Screen
@@ -53,8 +81,10 @@ const HomeStackNavigator = ({ navigation, route }) => {
       />
       <HomeStack.Screen
         name="Discuss"
-        component={Home}
-        options={() => ({
+        component={DiscussTabNavigator}
+        options={({ route }) => ({
+          title: getDiscussHeaderTitle(route),
+          headerShown: shouldDiscussHeaderBeShown(route),
           headerStyle: {
             backgroundColor: "#7c7bad",
           },
@@ -65,8 +95,8 @@ const HomeStackNavigator = ({ navigation, route }) => {
         name="Projects"
         component={ProjectsTabNavigator}
         options={({ route }) => ({
-          title: getHeaderTitle(route),
-          headerShown: shouldHeaderBeShown(route),
+          title: getProjectHeaderTitle(route),
+          headerShown: shouldProjectHeaderBeShown(route),
           headerStyle: {
             backgroundColor: "#7c7bad",
           },
@@ -87,7 +117,7 @@ const HomeTabNavigator = () => {
           if (route.name === "Home") {
             iconName = "ios-home";
           } else if (route.name === "Notifications") {
-            iconName = focused ? "ios-list-box" : "ios-list";
+            iconName = "ios-notifications";
           } else if (route.name === "Profile") {
             iconName = "md-person";
           }
