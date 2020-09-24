@@ -50,7 +50,14 @@ export default function Notifications() {
           Odoo.odoo
             .search_read("mail.message", params)
             .then((response) => {
-              addNotifications(response.data);
+              if (response.data) {
+                const notes = response.data.filter((el) => {
+                  return el.subject;
+                });
+                addNotifications(notes);
+              } else {
+                addNotifications(response.data);
+              }
 
               setIsLoading(false);
               setIsRefreshing(false);
