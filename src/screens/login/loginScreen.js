@@ -1,26 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 import { Input } from "react-native-elements";
 import { OdooConfig } from "../../../constants/configs";
 import styles from "./styles/loginStyles";
 import { LoadingScreen } from "../../commons";
+import { AuthContextProvider, AuthContext } from "../../contexts";
 
-//import { Font } from "expo-font";
-
-export default function Login({ navigation }) {
+export function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // useEffect(async () => {
-  //   await Font.loadAsync({
-  //     "aclonica-regular": require("../../../assets/fonts/aclonica-regular.ttf"),
-  //     "roboto-700": require("../../../assets/fonts/roboto-700.ttf"),
-  //     "roboto-regular": require("../../../assets/fonts/roboto-regular.ttf"),
-  //   });
-  //   setIsLoading(true);
-  // });
+  //access the authContext and call the createUser function
+  const { createUser, user } = useContext(AuthContext);
 
   const authenticate = async () => {
     setIsLoading(true);
@@ -29,16 +22,46 @@ export default function Login({ navigation }) {
     await Odoo.odoo
       .connect()
       .then((response) => {
-        console.log(response);
+        console.log(response.success);
         if (response.success) {
-          setIsLoading(false);
+          ////////////////////////////////////////////////////////////////
+          const params = {
+            domain: [["id", "=", response.data.partner_id]],
+            fields: [
+              "street",
+              "city",
+              "country_id",
+              "phone",
+              "email",
+              "image_1920",
+            ],
+          };
+
+          Odoo.odoo
+            .search_read("res.partner", params)
+            .then((response2) => {
+              console.log(response2.data);
+              createUser({
+                ...response.data,
+                email,
+                password,
+                more_info: [...response2.data],
+              });
+              setIsLoading(false);
+            })
+            .catch((e) => {
+              console.log(e);
+            });
+          ////////////////////////////////////////////////////////////////
+
           return navigation.navigate("Home");
         } else if (response.error.data.arguments[0] === "Access denied") {
           setIsLoading(false);
           setError("Incorrect Email or Password");
+        } else if (!response.success) {
+          setIsLoading(false);
         } else {
           setIsLoading(false);
-          return null;
         }
       })
       .catch((e) => {
@@ -82,3 +105,13 @@ export default function Login({ navigation }) {
     </View>
   );
 }
+
+// export default (props) => {
+//   return (
+//     <AuthContextProvider>
+//       <Login navigation={props.navigation} />
+//     </AuthContextProvider>
+//   );
+// };
+
+export default Login;

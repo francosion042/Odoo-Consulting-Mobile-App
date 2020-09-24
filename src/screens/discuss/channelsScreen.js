@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   TouchableOpacity,
   View,
@@ -8,15 +8,15 @@ import {
 import { ListItem } from "react-native-elements";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { OdooConfig } from "../../../constants/configs";
-import { AuthContext, ProjectsContext } from "../../contexts";
-import { LoadingScreen } from "../../commons";
+import { AuthContext, DiscussContext } from "../../contexts";
+import { LoadingScreen, ErrorScreen } from "../../commons";
 
-export default function Projects({ navigation }) {
+export default function Channels({ navigation }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { user } = useContext(AuthContext);
-  const { addProjects, projects } = useContext(ProjectsContext);
+  const { channels, addChannels } = useContext(DiscussContext);
 
   useEffect(() => {
     const Odoo = new OdooConfig(user.email, user.password);
@@ -24,22 +24,24 @@ export default function Projects({ navigation }) {
     Odoo.odoo
       .connect()
       .then((response) => {
-        console.log(response.success);
+        console.log(response.data);
         if (response.success) {
           const params = {
-            fields: ["name", "partner_id", "task_count"],
+            domain: [["channel_type", "=", "channel"]],
+            fields: ["name", "channel_type", "channel_message_ids"],
           };
 
           Odoo.odoo
-            .search_read("project.project", params)
+            .search_read("mail.channel", params)
             .then((response) => {
-              addProjects(response.data);
+              addChannels(response.data);
               setIsLoading(false);
               setIsRefreshing(false);
             })
             .catch((e) => {
               console.log(e);
             });
+          ///////////////////////////////////////////////////
         } else {
           setIsLoading(false);
           setIsRefreshing(false);
@@ -51,11 +53,9 @@ export default function Projects({ navigation }) {
       });
   }, [isRefreshing]);
 
-  ///////////////////////////////////////////////////////////////////////
   if (isLoading) {
     return <LoadingScreen />;
   }
-
   return (
     <View>
       <ScrollView
@@ -65,20 +65,22 @@ export default function Projects({ navigation }) {
             onRefresh={() => setIsRefreshing(true)}
           />
         }>
-        {projects.map((p, i) => (
+        {channels.map((c, i) => (
           <TouchableOpacity
             key={i}
             onPress={() =>
-              navigation.navigate("projectTasks", { project_id: p.id })
+              navigation.navigate("ChannelsMessages", {
+                channel_id: c.id,
+                channel_name: c.name,
+              })
             }>
             <ListItem bottomDivider>
-              <Ionicons name="ios-briefcase" size={40} color="#7c7bad" />
+              <Ionicons name="ios-people" size={40} color="#7c7bad" />
               <ListItem.Content>
-                <ListItem.Title>{p.name}</ListItem.Title>
+                <ListItem.Title>{c.name}</ListItem.Title>
                 <ListItem.Subtitle>
-                  Client: {p.partner_id ? p.partner_id[1] : "Annonymous"}
+                  Num of Messages: {c.channel_message_ids.length}
                 </ListItem.Subtitle>
-                <ListItem.Subtitle>{p.task_count} Tasks</ListItem.Subtitle>
               </ListItem.Content>
               <ListItem.Chevron />
             </ListItem>

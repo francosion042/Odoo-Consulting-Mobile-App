@@ -1,37 +1,88 @@
-import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Text, View, Button } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Login, Home } from "./src/screens";
+import { Login } from "./src/screens";
+import { HomeTabNavigator } from "./src/navigation";
+import {
+  AuthContextProvider,
+  ProjectsContextProvider,
+  TasksContextProvider,
+  DiscussContextProvider,
+  NotificationsContextProvider,
+} from "./src/contexts";
 
 const Stack = createStackNavigator();
 
-export default function App() {
-  // const [project, setProject] = useState();
+function App() {
+  const getHeaderTitle = (route) => {
+    const routeName = route.state
+      ? route.state.routes[route.state.index].name
+      : "Home";
 
-  // const params = {
-  //   fields: ["name"],
-  //   limit: 5,
-  //   offset: 0,
-  // };
+    switch (routeName) {
+      case "Home":
+        return "Home";
+      case "Notifications":
+        return "Notifications";
+      case "Profile":
+        return "Profile";
+    }
+  };
 
-  // odoo
-  //   .search_read("project.project", params)
-  //   .then((response) => {
-  //     // setProject(response);
-  //     console.log(response);
-  //   })
-  //   .catch((e) => {
-  //     console.log(e);
-  //   });
+  const shouldHeaderBeShown = (route) => {
+    const routeName = route.state
+      ? route.state.routes[route.state.index].name
+      : "Home";
+
+    switch (routeName) {
+      case "Home":
+        return false;
+    }
+  };
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="LogIn" component={Login} />
+        <Stack.Screen
+          name="LogIn"
+          component={Login}
+          options={{
+            headerShown: false,
+          }}
+        />
 
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen
+          name="Home"
+          component={HomeTabNavigator}
+          options={({ route }) => ({
+            title: getHeaderTitle(route),
+            headerShown: shouldHeaderBeShown(route),
+            headerLeft: null,
+            headerStyle: {
+              backgroundColor: "#7c7bad",
+            },
+            headerTintColor: "#fff",
+          })}
+        />
       </Stack.Navigator>
+      <StatusBar style="light" />
     </NavigationContainer>
   );
 }
+
+export default (props) => {
+  return (
+    <AuthContextProvider>
+      <ProjectsContextProvider>
+        <TasksContextProvider>
+          <DiscussContextProvider>
+            <NotificationsContextProvider>
+              <App navigation={props.navigation} />
+            </NotificationsContextProvider>
+          </DiscussContextProvider>
+        </TasksContextProvider>
+      </ProjectsContextProvider>
+    </AuthContextProvider>
+  );
+};

@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "rgba(189,16,224,1)",
+    backgroundColor: "#7c7bad",
   },
   rect: {
     width: 327,
@@ -18,9 +18,10 @@ const styles = StyleSheet.create({
     color: "#121212",
     height: 36,
     width: 278,
-    backgroundColor: "rgba(189,16,224,0.25)",
+    backgroundColor: "#d2d1e5",
     borderRadius: 5,
     marginTop: 50,
+    padding: 2,
     //marginLeft: 2,
   },
   password: {
@@ -28,8 +29,9 @@ const styles = StyleSheet.create({
     color: "#121212",
     height: 36,
     width: 278,
-    backgroundColor: "rgba(189,16,224,0.25)",
+    backgroundColor: "#d2d1e5",
     borderRadius: 5,
+    padding: 2,
     //marginTop: 5,
     //marginLeft: 2,
   },
@@ -42,7 +44,7 @@ const styles = StyleSheet.create({
   button: {
     width: 256,
     height: 42,
-    backgroundColor: "rgba(189,16,224,1)",
+    backgroundColor: "#7c7bad",
     borderRadius: 20,
     //marginTop: 4,
     marginLeft: 35,
@@ -58,7 +60,7 @@ const styles = StyleSheet.create({
     width: 327,
     height: 56,
     backgroundColor: "rgba(230,230,230,0.24)",
-    marginTop: 20,
+    marginTop: 50,
     marginLeft: 16,
   },
   loremIpsum: {
