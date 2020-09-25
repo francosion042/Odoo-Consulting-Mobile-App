@@ -1,26 +1,31 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
+import { CommonActions } from "@react-navigation/native";
 import IoniconsIcon from "react-native-vector-icons/Ionicons";
 import styles from "./styles/profileStyles";
 import { AuthContext } from "../../contexts";
+import { LoadingScreen } from "../../commons";
 
 function Profiles({ navigation }) {
+  const [isLoading, setIsLoading] = useState(false);
   const { user, removeUser } = useContext(AuthContext);
 
-  const logOut = () => {
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0, //places homeScreen on 0 index and clears login from stack
-        routes: [
-          {
-            name: "LogIn",
-          },
-        ],
-      })
-    );
-
+  const logOut = async () => {
+    setIsLoading(true);
     removeUser();
   };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!user) {
+    return (
+      <View>
+        <Text>Logged out</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

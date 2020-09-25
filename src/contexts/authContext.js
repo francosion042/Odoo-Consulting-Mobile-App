@@ -29,7 +29,9 @@ const AuthContextProvider = (props) => {
 
   const removeUser = async () => {
     AsyncStorage.removeItem("user");
-    setUser(false);
+    setTimeout(() => {
+      setUser(false);
+    }, 2000);
   };
 
   return (

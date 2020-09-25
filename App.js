@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { NavigationContainer, CommonActions } from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Login } from "./src/screens";
 import { HomeTabNavigator } from "./src/navigation";
@@ -12,11 +12,22 @@ import {
   DiscussContextProvider,
   NotificationsContextProvider,
 } from "./src/contexts";
+import { LoadingScreen } from "./src/commons";
 
 const Stack = createStackNavigator();
 
 function App() {
   const { user } = useContext(AuthContext);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) {
+      setIsLoggedIn(false);
+    } else {
+      setIsLoggedIn(true);
+    }
+  });
 
   const getHeaderTitle = (route) => {
     const routeName = route.state
@@ -43,12 +54,18 @@ function App() {
         return false;
     }
   };
-  console.log(user);
+  setTimeout(() => {
+    setIsLoading(false);
+  }, 1000);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <NavigationContainer>
       {/* check if the user data exists in the storage, otherwise show login page. */}
-      {!user ? (
+      {!isLoggedIn ? (
         <Stack.Navigator>
           <Stack.Screen
             name="LogIn"
