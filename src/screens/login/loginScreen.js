@@ -54,7 +54,16 @@ export function Login({ navigation }) {
             });
           ////////////////////////////////////////////////////////////////
 
-          return navigation.navigate("Home");
+          return navigation.dispatch(
+            CommonActions.reset({
+              index: 0, //places homeScreen on 0 index and clears login from stack
+              routes: [
+                {
+                  name: "Home",
+                },
+              ],
+            })
+          );
         } else if (response.error.data.arguments[0] === "Access denied") {
           setIsLoading(false);
           setError("Incorrect Email or Password");

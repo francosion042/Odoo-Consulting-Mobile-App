@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import { StatusBar } from "expo-status-bar";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, CommonActions } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Login } from "./src/screens";
 import { HomeTabNavigator } from "./src/navigation";
 import {
   AuthContextProvider,
+  AuthContext,
   ProjectsContextProvider,
   TasksContextProvider,
   DiscussContextProvider,
@@ -15,6 +16,8 @@ import {
 const Stack = createStackNavigator();
 
 function App() {
+  const { user } = useContext(AuthContext);
+
   const getHeaderTitle = (route) => {
     const routeName = route.state
       ? route.state.routes[route.state.index].name
@@ -40,32 +43,38 @@ function App() {
         return false;
     }
   };
+  console.log(user);
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="LogIn"
-          component={Login}
-          options={{
-            headerShown: false,
-          }}
-        />
-
-        <Stack.Screen
-          name="Home"
-          component={HomeTabNavigator}
-          options={({ route }) => ({
-            title: getHeaderTitle(route),
-            headerShown: shouldHeaderBeShown(route),
-            headerLeft: null,
-            headerStyle: {
-              backgroundColor: "#7c7bad",
-            },
-            headerTintColor: "#fff",
-          })}
-        />
-      </Stack.Navigator>
+      {/* check if the user data exists in the storage, otherwise show login page. */}
+      {!user ? (
+        <Stack.Navigator>
+          <Stack.Screen
+            name="LogIn"
+            component={Login}
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack.Navigator>
+      ) : (
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Home"
+            component={HomeTabNavigator}
+            options={({ route }) => ({
+              title: getHeaderTitle(route),
+              headerShown: shouldHeaderBeShown(route),
+              headerLeft: null,
+              headerStyle: {
+                backgroundColor: "#7c7bad",
+              },
+              headerTintColor: "#fff",
+            })}
+          />
+        </Stack.Navigator>
+      )}
       <StatusBar style="light" />
     </NavigationContainer>
   );

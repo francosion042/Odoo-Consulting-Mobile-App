@@ -4,9 +4,23 @@ import IoniconsIcon from "react-native-vector-icons/Ionicons";
 import styles from "./styles/profileStyles";
 import { AuthContext } from "../../contexts";
 
-function Profiles(props) {
-  //   //access the authContext and call the createUser function
-  const { user } = useContext(AuthContext);
+function Profiles({ navigation }) {
+  const { user, removeUser } = useContext(AuthContext);
+
+  const logOut = () => {
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0, //places homeScreen on 0 index and clears login from stack
+        routes: [
+          {
+            name: "LogIn",
+          },
+        ],
+      })
+    );
+
+    removeUser();
+  };
 
   return (
     <View style={styles.container}>
@@ -52,7 +66,7 @@ function Profiles(props) {
               </Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={() => logOut()}>
             <Text style={styles.logOut}>Log Out</Text>
           </TouchableOpacity>
         </View>
