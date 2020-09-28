@@ -3,17 +3,12 @@ import { View, Text, ScrollView, Image, RefreshControl } from "react-native";
 import { ListItem } from "react-native-elements";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import he from "he";
-import { OdooConfig } from "../../../constants/configs";
 import { AuthContext, NotificationsContext } from "../../contexts";
 import { LoadingScreen } from "../../commons";
 import styles from "./styles/notificationsStyles";
 
 export default function Notifications() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const { user } = useContext(AuthContext);
-  const { notifications, addNotifications } = useContext(NotificationsContext);
+  const { notifications } = useContext(NotificationsContext);
 
   ////////////////////////////
   // the body of each message is a string of HTML element, so it needs to be etracted and decoded
@@ -23,72 +18,10 @@ export default function Notifications() {
   };
   /////////////////////////////
 
-  useEffect(() => {
-    const Odoo = new OdooConfig(user.email, user.password);
-
-    Odoo.odoo
-      .connect()
-      .then((response) => {
-        console.log(response.success);
-        if (response.success) {
-          //////////////////////////////////////////////
-          // get all messages and add them to  the discuss context. this will make it easier to navigate between chats
-          const params = {
-            domain: [["message_type", "=", "notification"]],
-            fields: [
-              "subject",
-              "body",
-              "author_id",
-              "author_avatar",
-              "message_type",
-              "channel_ids",
-              "date",
-            ],
-            order: "date DESC",
-          };
-
-          Odoo.odoo
-            .search_read("mail.message", params)
-            .then((response) => {
-              if (response.data) {
-                const notes = response.data.filter((el) => {
-                  return el.subject;
-                });
-                addNotifications(notes);
-              } else {
-                addNotifications(response.data);
-              }
-
-              setIsLoading(false);
-              setIsRefreshing(false);
-            })
-            .catch((e) => {
-              console.log(e);
-            });
-          ///////////////////////////////////////////////////
-        } else {
-          setIsLoading(false);
-          setIsRefreshing(false);
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-        setIsLoading(false);
-      });
-  }, [isRefreshing]);
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  //console.log("New Notification ......", newNotifications);
   return (
     <View>
-      <ScrollView
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={() => setIsRefreshing(true)}
-          />
-        }>
+      <ScrollView>
         {notifications.map((n, i) => (
           <ListItem key={i} bottomDivider>
             {n.author_avatar ? (
