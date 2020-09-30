@@ -75,7 +75,7 @@ export default function Channels({ navigation }) {
               })
             }>
             <ListItem bottomDivider>
-              <Ionicons name="ios-people" size={40} color="#7c7bad" />
+              <Ionicons name="ios-person" size={40} color="#7c7bad" />
               <ListItem.Content>
                 <ListItem.Title>{c.name}</ListItem.Title>
                 <ListItem.Subtitle>

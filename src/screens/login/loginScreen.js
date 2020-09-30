@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 import { Input } from "react-native-elements";
+import { CommonActions } from "@react-navigation/stack";
 import { OdooConfig } from "../../../constants/configs";
 import styles from "./styles/loginStyles";
 import { LoadingScreen } from "../../commons";
-import { AuthContextProvider, AuthContext } from "../../contexts";
+import { AuthContext } from "../../contexts";
 
 export function Login({ navigation }) {
+  //access the authContext and call the createUser function
+  const { createUser, user } = useContext(AuthContext);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  //access the authContext and call the createUser function
-  const { createUser, user } = useContext(AuthContext);
 
   const authenticate = async () => {
     setIsLoading(true);
@@ -40,7 +41,6 @@ export function Login({ navigation }) {
           Odoo.odoo
             .search_read("res.partner", params)
             .then((response2) => {
-              console.log(response2.data);
               createUser({
                 ...response.data,
                 email,
@@ -53,8 +53,16 @@ export function Login({ navigation }) {
               console.log(e);
             });
           ////////////////////////////////////////////////////////////////
-
-          return navigation.navigate("Home");
+          return navigation.dispatch(
+            CommonActions.reset({
+              index: 0, //places homeScreen on 0 index and clears login from stack
+              routes: [
+                {
+                  name: "Home",
+                },
+              ],
+            })
+          );
         } else if (response.error.data.arguments[0] === "Access denied") {
           setIsLoading(false);
           setError("Incorrect Email or Password");
@@ -69,6 +77,7 @@ export function Login({ navigation }) {
         return false;
       });
   };
+
   if (isLoading) {
     return <LoadingScreen />;
   }

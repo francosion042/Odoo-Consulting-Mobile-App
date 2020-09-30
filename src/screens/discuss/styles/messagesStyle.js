@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: "row",
     backgroundColor: "#eee",
-    height: 90,
+    height: 50,
   },
   footer2: {
     flexDirection: "row",
