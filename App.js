@@ -6,6 +6,8 @@ import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
 import { Platform } from "react-native";
+import he from "he";
+// import BackgroundTimer from "react-native-background-timer";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -117,7 +119,9 @@ function App() {
       console.log("New Notification ......", newNotifications);
       // check if there's any new notification, then send the push notification if there is
       if (newNotifications) {
-        sendPushNotification(expoPushToken);
+        newNotifications.map((n) => {
+          sendPushNotification(expoPushToken, n.subject, extractHTML(n.body));
+        });
       }
     }, 30000);
     return () => clearInterval(timer);
@@ -182,6 +186,7 @@ export default (props) => {
   );
 };
 
+// Get header title from each screen in the hometab,
 const getHeaderTitle = (route) => {
   const routeName = route.state
     ? route.state.routes[route.state.index].name
@@ -209,12 +214,12 @@ const shouldHeaderBeShown = (route) => {
 };
 
 // Can use this function below, OR use Expo's Push Notification Tool-> https://expo.io/dashboard/notifications
-async function sendPushNotification(expoPushToken) {
+async function sendPushNotification(expoPushToken, title, body) {
   const message = {
     to: expoPushToken,
     sound: "default",
-    title: "Original Title",
-    body: "And here is the body!",
+    title: title,
+    body: body,
     data: { data: "goes here" },
   };
 
@@ -261,3 +266,11 @@ async function registerForPushNotificationsAsync() {
 
   return token;
 }
+
+////////////////////////////
+// the body of each message is a string of HTML element, so it needs to be etracted and decoded
+const extractHTML = (html) => {
+  const decodedStripedHtml = he.decode(html.replace(/<[^>]+>/g, ""));
+  return decodedStripedHtml;
+};
+/////////////////////////////
