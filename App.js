@@ -7,7 +7,7 @@ import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
 import { Platform } from "react-native";
 import he from "he";
-// import BackgroundTimer from "react-native-background-timer";
+import BackgroundTimer from "react-native-background-timer";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -97,12 +97,26 @@ function App() {
 
             Odoo.odoo
               .search_read("mail.message", params)
-              .then((response) => {
+              .then(async (response) => {
                 if (response.data) {
-                  const notes = response.data.filter((el) => {
+                  const notes = await response.data.filter((el) => {
                     return el.subject;
                   });
-                  addNotifications(notes);
+                  await addNotifications(notes);
+
+                  setTimeout(() => {
+                    console.log("New Notification ......", newNotifications);
+                    // check if there's any new notification, then send the push notification if there is
+                    if (newNotifications) {
+                      newNotifications.map((n) => {
+                        sendPushNotification(
+                          expoPushToken,
+                          n.subject,
+                          extractHTML(n.body)
+                        );
+                      });
+                    }
+                  }, 2000);
                 } else {
                   addNotifications(response.data);
                 }
@@ -116,13 +130,6 @@ function App() {
         .catch((e) => {
           console.log(e);
         });
-      console.log("New Notification ......", newNotifications);
-      // check if there's any new notification, then send the push notification if there is
-      if (newNotifications) {
-        newNotifications.map((n) => {
-          sendPushNotification(expoPushToken, n.subject, extractHTML(n.body));
-        });
-      }
     }, 30000);
     return () => clearInterval(timer);
   });
