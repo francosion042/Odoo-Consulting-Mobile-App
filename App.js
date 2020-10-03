@@ -7,15 +7,10 @@ import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
 import { Platform } from "react-native";
 import he from "he";
-import BackgroundTimer from "react-native-background-timer";
+import * as BackgroundFetch from "expo-background-fetch";
+import * as TaskManager from "expo-task-manager";
+// import BackgroundTimer from "react-native-background-timer";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
 import { Login } from "./src/screens";
 import { HomeTabNavigator } from "./src/navigation";
 import {
@@ -32,7 +27,16 @@ import { OdooConfig } from "./constants/configs";
 
 const Stack = createStackNavigator();
 
-function App() {
+////////////////////////////// Setup for notifications////////////////////////
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
+const App = () => {
   const { user } = useContext(AuthContext);
   const { newNotifications, addNotifications } = useContext(
     NotificationsContext
@@ -69,7 +73,7 @@ function App() {
     };
   }, []);
 
-  /////////////////////////////////////////////Get Notification from odoo //////////////////////////////////////////
+  /////////////////////////////////////////////Get Notification from odoo When App is Foreground//////////////////////////////////////////
   useEffect(() => {
     const timer = setInterval(async () => {
       const Odoo = new OdooConfig(user.email, user.password);
@@ -134,6 +138,99 @@ function App() {
     return () => clearInterval(timer);
   });
 
+  ////////////////////////////////Creating background task setup///////////////////////
+  const TASK_NAME = "BACKGROUND_TASK";
+
+  TaskManager.defineTask(TASK_NAME, () => {
+    try {
+      const Odoo = new OdooConfig(user.email, user.password);
+      Odoo.odoo
+        .connect()
+        .then((response) => {
+          console.log("Here is", response.success);
+          if (response.success) {
+            //////////////////////////////////////////////
+            // get all messages and add them to  the discuss context. this will make it easier to navigate between chats
+            const params = {
+              domain: [["message_type", "=", "notification"]],
+              fields: [
+                "id",
+                "subject",
+                "body",
+                "author_id",
+                "author_avatar",
+                "message_type",
+                "channel_ids",
+                "date",
+              ],
+              order: "date DESC",
+            };
+
+            Odoo.odoo
+              .search_read("mail.message", params)
+              .then(async (response) => {
+                if (response.data) {
+                  const notes = await response.data.filter((el) => {
+                    return el.subject;
+                  });
+                  await addNotifications(notes);
+
+                  setTimeout(() => {
+                    console.log(
+                      "New Notification from here ......",
+                      newNotifications
+                    );
+                    // check if there's any new notification, then send the push notification if there is
+                    if (newNotifications) {
+                      newNotifications.map((n) => {
+                        sendPushNotification(
+                          expoPushToken,
+                          n.subject,
+                          extractHTML(n.body)
+                        );
+                      });
+                    }
+                  }, 2000);
+                } else {
+                  addNotifications(response.data);
+                }
+              })
+              .catch((e) => {
+                console.log(e);
+              });
+          } else {
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+
+      // // fetch data here...
+      // const receivedNewData = "Simulated fetch " + Math.random()
+      // console.log("My task ", receivedNewData)
+      return receivedNewData
+        ? BackgroundFetch.Result.NewData
+        : BackgroundFetch.Result.NoData;
+    } catch (err) {
+      return BackgroundFetch.Result.Failed;
+    }
+  });
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  //////////////////////////////////////////////////Background tasks with Task Manager////////////////////////////////
+  /**
+   * @summary This performs the odoo querying in the background, when app is not open
+   */
+  try {
+    BackgroundFetch.registerTaskAsync(TASK_NAME, {
+      minimumInterval: 3, // seconds,
+    });
+    console.log("Task registered");
+  } catch (err) {
+    console.log("Task Register failed:", err);
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   setTimeout(() => {
     setIsLoading(false);
   }, 1000);
@@ -175,7 +272,7 @@ function App() {
       <StatusBar style="light" />
     </NavigationContainer>
   );
-}
+};
 
 export default (props) => {
   return (
