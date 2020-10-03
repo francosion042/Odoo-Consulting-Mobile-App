@@ -9,8 +9,6 @@ import { Platform } from "react-native";
 import he from "he";
 import * as BackgroundFetch from "expo-background-fetch";
 import * as TaskManager from "expo-task-manager";
-// import BackgroundTimer from "react-native-background-timer";
-
 import { Login } from "./src/screens";
 import { HomeTabNavigator } from "./src/navigation";
 import {
