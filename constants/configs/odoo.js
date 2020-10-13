@@ -5,12 +5,12 @@ class OdooConfig {
     this.email = email;
     this.password = password;
     this.odoo = new Odoo({
-      host: "46.101.249.182",
-      port: 8069,
-      database: "test_db",
+      host: "test.ehiotech.com",
+      port: 443,
+      database: "test",
       username: this.email,
       password: this.password,
-      protocol: "http",
+      protocol: "https",
     });
   }
 }

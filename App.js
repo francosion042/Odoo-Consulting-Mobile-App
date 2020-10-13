@@ -24,6 +24,7 @@ import { LoadingScreen } from "./src/commons";
 import { OdooConfig } from "./constants/configs";
 
 const Stack = createStackNavigator();
+const TASK_NAME = "BACKGROUND_TASK";
 
 ////////////////////////////// Setup for notifications////////////////////////
 Notifications.setNotificationHandler({
@@ -137,82 +138,7 @@ const App = () => {
   });
 
   ////////////////////////////////Creating background task setup///////////////////////
-  const TASK_NAME = "BACKGROUND_TASK";
 
-  TaskManager.defineTask(TASK_NAME, () => {
-    try {
-      const Odoo = new OdooConfig(user.email, user.password);
-      Odoo.odoo
-        .connect()
-        .then((response) => {
-          console.log("Here is", response.success);
-          if (response.success) {
-            //////////////////////////////////////////////
-            // get all messages and add them to  the discuss context. this will make it easier to navigate between chats
-            const params = {
-              domain: [["message_type", "=", "notification"]],
-              fields: [
-                "id",
-                "subject",
-                "body",
-                "author_id",
-                "author_avatar",
-                "message_type",
-                "channel_ids",
-                "date",
-              ],
-              order: "date DESC",
-            };
-
-            Odoo.odoo
-              .search_read("mail.message", params)
-              .then(async (response) => {
-                if (response.data) {
-                  const notes = await response.data.filter((el) => {
-                    return el.subject;
-                  });
-                  await addNotifications(notes);
-
-                  setTimeout(() => {
-                    console.log(
-                      "New Notification from here ......",
-                      newNotifications
-                    );
-                    // check if there's any new notification, then send the push notification if there is
-                    if (newNotifications) {
-                      newNotifications.map((n) => {
-                        sendPushNotification(
-                          expoPushToken,
-                          n.subject,
-                          extractHTML(n.body)
-                        );
-                      });
-                    }
-                  }, 2000);
-                } else {
-                  addNotifications(response.data);
-                }
-              })
-              .catch((e) => {
-                console.log(e);
-              });
-          } else {
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-
-      // // fetch data here...
-      // const receivedNewData = "Simulated fetch " + Math.random()
-      // console.log("My task ", receivedNewData)
-      return receivedNewData
-        ? BackgroundFetch.Result.NewData
-        : BackgroundFetch.Result.NoData;
-    } catch (err) {
-      return BackgroundFetch.Result.Failed;
-    }
-  });
   ////////////////////////////////////////////////////////////////////////////////////
 
   //////////////////////////////////////////////////Background tasks with Task Manager////////////////////////////////
@@ -224,6 +150,8 @@ const App = () => {
       minimumInterval: 3, // seconds,
     });
     console.log("Task registered");
+    ////////////////////////////////////////////////////////////////////
+    BackgroundEvents(user, addNotifications, newNotifications);
   } catch (err) {
     console.log("Task Register failed:", err);
   }
@@ -376,3 +304,80 @@ const extractHTML = (html) => {
   return decodedStripedHtml;
 };
 /////////////////////////////
+
+const BackgroundEvents = (user, addNotifications, newNotifications) => {
+  TaskManager.defineTask(TASK_NAME, () => {
+    try {
+      const Odoo = new OdooConfig(user.email, user.password);
+      Odoo.odoo
+        .connect()
+        .then((response) => {
+          console.log("Here is", response.success);
+          if (response.success) {
+            //////////////////////////////////////////////
+            // get all messages and add them to  the discuss context. this will make it easier to navigate between chats
+            const params = {
+              domain: [["message_type", "=", "notification"]],
+              fields: [
+                "id",
+                "subject",
+                "body",
+                "author_id",
+                "author_avatar",
+                "message_type",
+                "channel_ids",
+                "date",
+              ],
+              order: "date DESC",
+            };
+
+            Odoo.odoo
+              .search_read("mail.message", params)
+              .then(async (response) => {
+                if (response.data) {
+                  const notes = await response.data.filter((el) => {
+                    return el.subject;
+                  });
+                  await addNotifications(notes);
+
+                  setTimeout(() => {
+                    console.log(
+                      "New Notification from here ......",
+                      newNotifications
+                    );
+                    // check if there's any new notification, then send the push notification if there is
+                    if (newNotifications) {
+                      newNotifications.map((n) => {
+                        sendPushNotification(
+                          expoPushToken,
+                          n.subject,
+                          extractHTML(n.body)
+                        );
+                      });
+                    }
+                  }, 2000);
+                } else {
+                  addNotifications(response.data);
+                }
+              })
+              .catch((e) => {
+                console.log(e);
+              });
+          } else {
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+
+      // // fetch data here...
+      // const receivedNewData = "Simulated fetch " + Math.random()
+      // console.log("My task ", receivedNewData)
+      return receivedNewData
+        ? BackgroundFetch.Result.NewData
+        : BackgroundFetch.Result.NoData;
+    } catch (err) {
+      return BackgroundFetch.Result.Failed;
+    }
+  });
+};
