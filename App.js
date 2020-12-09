@@ -7,8 +7,7 @@ import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
 import { Platform } from "react-native";
 import he from "he";
-import * as BackgroundFetch from "expo-background-fetch";
-import * as TaskManager from "expo-task-manager";
+import BackgroundTimer from "react-native-background-timer";
 import { Login } from "./src/screens";
 import { HomeTabNavigator } from "./src/navigation";
 import {
@@ -72,80 +71,15 @@ const App = () => {
   }, []);
 
   /////////////////////////////////////////////Get Notification from odoo When App is Foreground//////////////////////////////////////////
-  useEffect(() => {
-    const timer = setInterval(async () => {
-      const Odoo = new OdooConfig(user.email, user.password);
-      await Odoo.odoo
-        .connect()
-        .then((response) => {
-          console.log(response.success);
-          if (response.success) {
-            //////////////////////////////////////////////
-            // get all messages and add them to  the discuss context. this will make it easier to navigate between chats
-            const params = {
-              domain: [["message_type", "=", "notification"]],
-              fields: [
-                "id",
-                "subject",
-                "body",
-                "author_id",
-                "author_avatar",
-                "message_type",
-                "channel_ids",
-                "date",
-              ],
-              order: "date DESC",
-            };
-
-            Odoo.odoo
-              .search_read("mail.message", params)
-              .then(async (response) => {
-                if (response.data) {
-                  const notes = await response.data.filter((el) => {
-                    return el.subject;
-                  });
-                  await addNotifications(notes);
-
-                  setTimeout(() => {
-                    console.log("New Notification ......", newNotifications);
-                    // check if there's any new notification, then send the push notification if there is
-                    if (newNotifications) {
-                      newNotifications.map((n) => {
-                        sendPushNotification(
-                          expoPushToken,
-                          n.subject,
-                          extractHTML(n.body)
-                        );
-                      });
-                    }
-                  }, 2000);
-                } else {
-                  addNotifications(response.data);
-                }
-              })
-              .catch((e) => {
-                console.log(e);
-              });
-          } else {
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    }, 30000);
-    return () => clearInterval(timer);
-  });
-
-  ////////////////////////////////Creating background task setup///////////////////////
-  const TASK_NAME = "BACKGROUND_TASK";
-
-  TaskManager.defineTask(TASK_NAME, () => {
-    try {
+  const BG = (user) => {
+    BackgroundTimer.runBackgroundTimer(() => {
+      //code that will be called every 3 seconds
       const Odoo = new OdooConfig(user.email, user.password);
       Odoo.odoo
         .connect()
         .then((response) => {
-          console.log("Here is", response.success);
+          console.log(response.success);
+          console.log(user.email, "||", user.password);
           if (response.success) {
             //////////////////////////////////////////////
             // get all messages and add them to  the discuss context. this will make it easier to navigate between chats
@@ -173,22 +107,17 @@ const App = () => {
                   });
                   await addNotifications(notes);
 
-                  setTimeout(() => {
-                    console.log(
-                      "New Notification from here ......",
-                      newNotifications
-                    );
-                    // check if there's any new notification, then send the push notification if there is
-                    if (newNotifications) {
-                      newNotifications.map((n) => {
-                        sendPushNotification(
-                          expoPushToken,
-                          n.subject,
-                          extractHTML(n.body)
-                        );
-                      });
-                    }
-                  }, 2000);
+                  console.log("New Notification ......", newNotifications);
+                  // check if there's any new notification, then send the push notification if there is
+                  if (newNotifications) {
+                    newNotifications.map((n) => {
+                      sendPushNotification(
+                        expoPushToken,
+                        n.subject,
+                        extractHTML(n.body)
+                      );
+                    });
+                  }
                 } else {
                   addNotifications(response.data);
                 }
@@ -202,32 +131,13 @@ const App = () => {
         .catch((e) => {
           console.log(e);
         });
+    }, 5000);
+    //rest of code will be performing for iOS on background too
 
-      // // fetch data here...
-      // const receivedNewData = "Simulated fetch " + Math.random()
-      // console.log("My task ", receivedNewData)
-      return receivedNewData
-        ? BackgroundFetch.Result.NewData
-        : BackgroundFetch.Result.NoData;
-    } catch (err) {
-      return BackgroundFetch.Result.Failed;
-    }
-  });
-  ////////////////////////////////////////////////////////////////////////////////////
+    BackgroundTimer.stopBackgroundTimer(); //after this call all code on background stop run.
+  };
 
-  //////////////////////////////////////////////////Background tasks with Task Manager////////////////////////////////
-  /**
-   * @summary This performs the odoo querying in the background, when app is not open
-   */
-  try {
-    BackgroundFetch.registerTaskAsync(TASK_NAME, {
-      minimumInterval: 3, // seconds,
-    });
-    console.log("Task registered");
-  } catch (err) {
-    console.log("Task Register failed:", err);
-  }
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   setTimeout(() => {
     setIsLoading(false);
@@ -236,6 +146,9 @@ const App = () => {
   if (isLoading) {
     return <LoadingScreen />;
   }
+  console.log(user.email, "||", user.password);
+  // Call the background task function
+  BG(user);
 
   return (
     <NavigationContainer>
